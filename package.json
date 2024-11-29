@@ -1,0 +1,30 @@
+{
+  "name": "@echristian/package-starter",
+  "version": "0.0.0",
+  "description": "This is a package starter",
+  "keywords": [],
+  "license": "MIT",
+  "author": "Erick Christian <erickchristian48@gmail.com> (https://github.com/ericc-ch)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/main.mjs"
+    }
+  },
+  "main": "./dist/main.mjs",
+  "types": "./dist/main.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "lint": "eslint .",
+    "prepack": "unbuild"
+  },
+  "packageManager": "pnpm@9.14.2",
+  "devDependencies": {
+    "@echristian/eslint-config": "^0.0.5",
+    "eslint": "^9.15.0",
+    "unbuild": "^2.0.0"
+  }
+}
