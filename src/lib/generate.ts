@@ -1,6 +1,6 @@
-import { connect } from "./connect.ts";
-import type { AudioMetadata, ParseSubtitleOptions } from "./subtitle.ts";
-import { parseSubtitle } from "./subtitle.ts";
+import { connect } from "./connect";
+import type { AudioMetadata, ParseSubtitleOptions } from "./subtitle";
+import { parseSubtitle } from "./subtitle";
 
 /**
  * Options that will be sent alongside the websocket request

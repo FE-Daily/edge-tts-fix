@@ -16,7 +16,7 @@ url.search = searchParams.toString();
  * @param outputFormat Please refer to {@linkcode GenerateOptions.outputFormat}
  * @returns The websocket connection instance
  */
-export function connect(outputFormat: string) {
+export function connect(outputFormat: string): Promise<WebSocket> {
   if (!outputFormat) throw new Error("Output format is required");
 
   const ws = new WebSocket(url.toString());

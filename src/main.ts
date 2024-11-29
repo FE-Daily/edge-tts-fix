@@ -58,4 +58,4 @@
  * @module`
  */
 
-export * from "./generate.js";
+export * from "./lib/generate";
