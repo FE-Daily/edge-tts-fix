@@ -4,7 +4,7 @@ const searchParams = new URLSearchParams({
 
 const url = new URL(
   "/consumer/speech/synthesize/readaloud/edge/v1",
-  "wss://speech.platform.bing.com"
+  "wss://speech.platform.bing.com",
 );
 
 url.search = searchParams.toString();

@@ -2,24 +2,11 @@ const FACTOR = 10_000;
 
 const convertToMs = (duration: number) => Math.floor(duration / FACTOR);
 
-interface WordBoundary {
-  Type: "WordBoundary";
-  Data: {
-    Offset: number;
-    Duration: number;
-    text: {
-      Text: string;
-      Length: number;
-      BoundaryType: "WordBoundary";
-    };
-  };
-}
-
 export interface AudioMetadata {
   Metadata: [WordBoundary];
 }
 
-export type ParseSubtitleOptions = {
+export interface ParseSubtitleOptions {
   /**
    * The function will split the cues based on this option
    *
@@ -41,12 +28,12 @@ export type ParseSubtitleOptions = {
    * Array of metadata received throughout the websocket connection
    */
   metadata: Array<AudioMetadata>;
-};
+}
 
 /**
  * Parsed cue in js
  */
-export type ParseSubtitleResult = {
+export interface ParseSubtitleResult {
   /**
    * Text of the cue
    */
@@ -66,7 +53,20 @@ export type ParseSubtitleResult = {
    * The duration of the cue in milliseconds
    */
   duration: number;
-};
+}
+
+interface WordBoundary {
+  Type: "WordBoundary";
+  Data: {
+    Offset: number;
+    Duration: number;
+    text: {
+      Text: string;
+      Length: number;
+      BoundaryType: "WordBoundary";
+    };
+  };
+}
 
 /**
  * Parses the metadata sent throughout the websocket connection and returns it as an array of object.
@@ -88,7 +88,7 @@ export function parseSubtitle({
   if (splitBy === "duration") {
     if (count === undefined)
       throw new Error(
-        "Count option must be provided when splitting by duration"
+        "Count option must be provided when splitting by duration",
       );
 
     return simplified.reduce<Array<ParseSubtitleResult>>(
@@ -112,7 +112,7 @@ export function parseSubtitle({
 
         return prev;
       },
-      []
+      [],
     );
   }
 

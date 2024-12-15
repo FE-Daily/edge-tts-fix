@@ -1,11 +1,12 @@
-import { connect } from "./connect";
 import type { AudioMetadata, ParseSubtitleOptions } from "./subtitle";
+
+import { connect } from "./connect";
 import { parseSubtitle } from "./subtitle";
 
 /**
  * Options that will be sent alongside the websocket request
  */
-type GenerateOptions = {
+interface GenerateOptions {
   /** The text that will be generated as audio */
   text: string;
 
@@ -58,12 +59,12 @@ type GenerateOptions = {
   volume?: string;
 
   subtitle?: Omit<ParseSubtitleOptions, "metadata">;
-};
+}
 
-type GenerateResult = {
+interface GenerateResult {
   audio: Blob;
   subtitle: ReturnType<typeof parseSubtitle>;
-};
+}
 
 /**
  * Asynchronously generates audio and subtitle data based on the provided options.
@@ -72,7 +73,7 @@ type GenerateResult = {
  * @return  A promise that resolves with the generated audio and subtitle data.
  */
 export async function generate(
-  options: GenerateOptions
+  options: GenerateOptions,
 ): Promise<GenerateResult> {
   const voice = options.voice ?? "en-US-AvaNeural";
   const language = options.language ?? "en-US";
@@ -140,12 +141,14 @@ export async function generate(
         return subtitleChunks.push(json);
       }
 
-      if (message.data.includes("Path:turn.end"))
-        return resolve({
+      if (message.data.includes("Path:turn.end")) {
+        resolve({
           audio: new Blob(audioChunks),
           subtitle: parseSubtitle({ metadata: subtitleChunks, ...subtitle }),
         });
-    }
+        return;
+      }
+    },
   );
 
   return promise;
