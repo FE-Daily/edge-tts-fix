@@ -2,9 +2,6 @@
 
 > Generate speech audio from text using Microsoft Edge's text-to-speech API.
 
-[![JSR](https://jsr.io/badges/@ericc/edge-tts)](https://jsr.io/@ericc/edge-tts)
-[![JSR Score](https://jsr.io/badges/@ericc/edge-tts/score)](https://jsr.io/@ericc/edge-tts)
-
 Heavily inspired by [rany2/edge-tts](https://github.com/rany2/edge-tts) and [SchneeHertz/node-edge-tts](https://github.com/SchneeHertz/node-edge-tts)
 
 ## Features
@@ -15,29 +12,17 @@ Heavily inspired by [rany2/edge-tts](https://github.com/rany2/edge-tts) and [Sch
 
 ## Installation
 
+Using npm:
+
 ```bash
-# Deno
-deno add @ericc/edge-tts
-
-# NPM
-npx jsr add @ericc/edge-tts
-
-# Yarn
-yarn dlx jsr add @ericc/edge-tts
-
-# PNPM
-pnpm dlx jsr add @ericc/edge-tts
-
-# Bun
-bunx jsr add @ericc/edge-tts
-
+npm install @echristian/edge-tts
 ```
 
-## Usage
+Using pnpm:
 
-Check out the example usage and docs at the [JSR page](https://jsr.io/@ericc/edge-tts).
-
-## API Reference
+```bash
+pnpm install @echristian/edge-tts
+```
 
 ### Basic Usage
 
