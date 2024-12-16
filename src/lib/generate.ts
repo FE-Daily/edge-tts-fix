@@ -1,14 +1,14 @@
-import type { AudioMetadata, ParseSubtitleOptions } from "./subtitle";
+import type { AudioMetadata, ParseSubtitleOptions } from "./subtitle"
 
-import { connect } from "./connect";
-import { parseSubtitle } from "./subtitle";
+import { connect } from "./connect"
+import { parseSubtitle } from "./subtitle"
 
 /**
  * Options that will be sent alongside the websocket request
  */
 interface GenerateOptions {
   /** The text that will be generated as audio */
-  text: string;
+  text: string
 
   /**
    * Voice persona used to read the message.
@@ -16,7 +16,7 @@ interface GenerateOptions {
    *
    * Defaults to `"en-US-AvaNeural"`
    */
-  voice?: string;
+  voice?: string
 
   /**
    * Language of the message.
@@ -24,7 +24,7 @@ interface GenerateOptions {
    *
    * Defaults to `"en-US"`
    */
-  language?: string;
+  language?: string
 
   /**
    * Format of the audio output.
@@ -32,7 +32,7 @@ interface GenerateOptions {
    *
    * Defaults to `"audio-24khz-96kbitrate-mono-mp3"`
    */
-  outputFormat?: string;
+  outputFormat?: string
 
   /**
    * Indicates the speaking rate of the text.
@@ -40,7 +40,7 @@ interface GenerateOptions {
    *
    * Defaults to `"default"`
    */
-  rate?: string;
+  rate?: string
 
   /**
    * Indicates the baseline pitch for the text.
@@ -48,22 +48,35 @@ interface GenerateOptions {
    *
    * Defaults to `"default"`
    */
-  pitch?: string;
+  pitch?: string
 
   /**
    * Indicates the volume level of the speaking voice.
    * Please refer to [Customize voice and sound with SSML](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-synthesis-markup-voice#adjust-prosody)
-   *
-   * Defaults to `"default"`
+   * @default "default"
    */
-  volume?: string;
+  volume?: string
 
-  subtitle?: Omit<ParseSubtitleOptions, "metadata">;
+  subtitle?: Omit<ParseSubtitleOptions, "metadata">
 }
 
 interface GenerateResult {
-  audio: Blob;
-  subtitle: ReturnType<typeof parseSubtitle>;
+  audio: Blob
+  subtitle: ReturnType<typeof parseSubtitle>
+}
+
+const defaultOptions: Partial<GenerateOptions> = {
+  voice: "en-US-AvaNeural",
+  language: "en-US",
+
+  outputFormat: "audio-24khz-96kbitrate-mono-mp3",
+  rate: "default",
+  pitch: "default",
+  volume: "default",
+
+  subtitle: {
+    splitBy: "sentence",
+  },
 }
 
 /**
@@ -75,24 +88,23 @@ interface GenerateResult {
 export async function generate(
   options: GenerateOptions,
 ): Promise<GenerateResult> {
-  const voice = options.voice ?? "en-US-AvaNeural";
-  const language = options.language ?? "en-US";
+  const voice = options.voice ?? "en-US-AvaNeural"
+  const language = options.language ?? "en-US"
 
-  const outputFormat =
-    options.outputFormat ?? "audio-24khz-96kbitrate-mono-mp3";
-  const rate = options.rate ?? "default";
-  const pitch = options.pitch ?? "default";
-  const volume = options.volume ?? "default";
+  const outputFormat = options.outputFormat ?? "audio-24khz-96kbitrate-mono-mp3"
+  const rate = options.rate ?? "default"
+  const pitch = options.pitch ?? "default"
+  const volume = options.volume ?? "default"
 
   const subtitle: Omit<ParseSubtitleOptions, "metadata"> = {
     splitBy: "sentence",
     count: 1,
     ...options.subtitle,
-  };
+  }
 
-  const socket = await connect(outputFormat);
+  const socket = await connect(outputFormat)
 
-  const requestId = globalThis.crypto.randomUUID();
+  const requestId = globalThis.crypto.randomUUID()
 
   const requestString = `
   X-RequestId:${requestId}\r\n
@@ -106,50 +118,50 @@ export async function generate(
       </prosody>
     </voice>
   </speak>
-  `;
+  `
 
-  const audioChunks: Array<Uint8Array> = [];
-  const subtitleChunks: Array<AudioMetadata> = [];
+  const audioChunks: Array<Uint8Array> = []
+  const subtitleChunks: Array<AudioMetadata> = []
 
-  const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>();
+  const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>()
 
-  socket.send(requestString);
+  socket.send(requestString)
 
-  socket.addEventListener("error", reject);
+  socket.addEventListener("error", reject)
 
   socket.addEventListener(
     "message",
     async (message: MessageEvent<string | Blob>) => {
       if (typeof message.data !== "string") {
-        const blob = new Blob([message.data]);
+        const blob = new Blob([message.data])
 
-        const separator = "Path:audio\r\n";
+        const separator = "Path:audio\r\n"
 
-        const bytes = new Uint8Array(await blob.arrayBuffer());
-        const binaryString = new TextDecoder().decode(bytes);
+        const bytes = new Uint8Array(await blob.arrayBuffer())
+        const binaryString = new TextDecoder().decode(bytes)
 
-        const index = binaryString.indexOf(separator) + separator.length;
-        const audioData = bytes.subarray(index);
+        const index = binaryString.indexOf(separator) + separator.length
+        const audioData = bytes.subarray(index)
 
-        return audioChunks.push(audioData);
+        return audioChunks.push(audioData)
       }
 
       if (message.data.includes("Path:audio.metadata")) {
-        const jsonString = message.data.split("Path:audio.metadata")[1].trim();
-        const json = JSON.parse(jsonString) as AudioMetadata;
+        const jsonString = message.data.split("Path:audio.metadata")[1].trim()
+        const json = JSON.parse(jsonString) as AudioMetadata
 
-        return subtitleChunks.push(json);
+        return subtitleChunks.push(json)
       }
 
       if (message.data.includes("Path:turn.end")) {
         resolve({
           audio: new Blob(audioChunks),
           subtitle: parseSubtitle({ metadata: subtitleChunks, ...subtitle }),
-        });
-        return;
+        })
+        return
       }
     },
-  );
+  )
 
-  return promise;
+  return promise
 }
