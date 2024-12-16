@@ -22,6 +22,9 @@
     "lint": "eslint .",
     "prepack": "unbuild"
   },
+  "dependencies": {
+    "defu": "^6.1.4"
+  },
   "devDependencies": {
     "@echristian/eslint-config": "^0.0.8",
     "eslint": "^9.17.0",

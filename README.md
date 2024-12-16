@@ -6,7 +6,6 @@ Heavily inspired by [rany2/edge-tts](https://github.com/rany2/edge-tts) and [Sch
 
 ## Features
 
-- Zero dependencies
 - Using standard web APIs. Should work in all (modern) JS environment
 - Provides subtitle/caption data
 
