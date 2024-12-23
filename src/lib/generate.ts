@@ -122,8 +122,27 @@ export async function generate(
 
   const audioChunks: Array<Uint8Array> = []
   const subtitleChunks: Array<AudioMetadata> = []
+  const rawAudioChunks: Array<BlobPart> = []
 
   const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>()
+
+  async function dealRawAudioChunks() {
+    while (rawAudioChunks.length) {
+      const data = rawAudioChunks.shift()
+      if (!data) continue
+      const blob = new Blob([data])
+
+      const separator = "Path:audio\r\n"
+
+      const bytes = new Uint8Array(await blob.arrayBuffer())
+      const binaryString = new TextDecoder().decode(bytes)
+
+      const index = binaryString.indexOf(separator) + separator.length
+      const audioData = bytes.subarray(index)
+
+      return audioChunks.push(audioData)
+    }
+  }
 
   socket.send(requestString)
 
@@ -133,17 +152,8 @@ export async function generate(
     "message",
     async (message: MessageEvent<string | Blob>) => {
       if (typeof message.data !== "string") {
-        const blob = new Blob([message.data])
-
-        const separator = "Path:audio\r\n"
-
-        const bytes = new Uint8Array(await blob.arrayBuffer())
-        const binaryString = new TextDecoder().decode(bytes)
-
-        const index = binaryString.indexOf(separator) + separator.length
-        const audioData = bytes.subarray(index)
-
-        return audioChunks.push(audioData)
+        rawAudioChunks.push(message.data)
+        return
       }
 
       if (message.data.includes("Path:audio.metadata")) {
@@ -154,6 +164,7 @@ export async function generate(
       }
 
       if (message.data.includes("Path:turn.end")) {
+        await dealRawAudioChunks()
         resolve({
           audio: new Blob(audioChunks),
           subtitle: parseSubtitle({ metadata: subtitleChunks, ...subtitle }),
