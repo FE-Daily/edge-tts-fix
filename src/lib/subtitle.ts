@@ -1,9 +1,9 @@
-const FACTOR = 10_000;
+const FACTOR = 10_000
 
-const convertToMs = (duration: number) => Math.floor(duration / FACTOR);
+const convertToMs = (duration: number) => Math.floor(duration / FACTOR)
 
 export interface AudioMetadata {
-  Metadata: [WordBoundary];
+  Metadata: [WordBoundary]
 }
 
 export interface ParseSubtitleOptions {
@@ -14,7 +14,7 @@ export interface ParseSubtitleOptions {
    * - `"word"` will split the text to X count of words for each cue
    * - `"duration"` will split the text to X duration of milliseconds for each cue
    */
-  splitBy: "sentence" | "word" | "duration";
+  splitBy: "sentence" | "word" | "duration"
 
   /**
    * Used when splitting by `"words"` or `"duration"`
@@ -22,12 +22,12 @@ export interface ParseSubtitleOptions {
    * - When splitting by `"words"`,  count means the amount of words for each cue
    * - When splitting by `"duration"`, count means the duration in milliseconds for each cue
    */
-  count?: number;
+  count?: number
 
   /**
    * Array of metadata received throughout the websocket connection
    */
-  metadata: Array<AudioMetadata>;
+  metadata: Array<AudioMetadata>
 }
 
 /**
@@ -37,35 +37,35 @@ export interface ParseSubtitleResult {
   /**
    * Text of the cue
    */
-  text: string;
+  text: string
 
   /**
    * The start timestamp of the cue in milliseconds
    */
-  start: number;
+  start: number
 
   /**
    * The end timestamp of the cue in milliseconds
    */
-  end: number;
+  end: number
 
   /**
    * The duration of the cue in milliseconds
    */
-  duration: number;
+  duration: number
 }
 
 interface WordBoundary {
-  Type: "WordBoundary";
+  Type: "WordBoundary"
   Data: {
-    Offset: number;
-    Duration: number;
+    Offset: number
+    Duration: number
     text: {
-      Text: string;
-      Length: number;
-      BoundaryType: "WordBoundary";
-    };
-  };
+      Text: string
+      Length: number
+      BoundaryType: "WordBoundary"
+    }
+  }
 }
 
 /**
@@ -83,13 +83,13 @@ export function parseSubtitle({
     text: meta.Metadata[0].Data.text.Text,
     offset: convertToMs(meta.Metadata[0].Data.Offset),
     duration: convertToMs(meta.Metadata[0].Data.Duration),
-  }));
+  }))
 
   if (splitBy === "duration") {
     if (count === undefined)
       throw new Error(
         "Count option must be provided when splitting by duration",
-      );
+      )
 
     return simplified.reduce<Array<ParseSubtitleResult>>(
       (prev, curr, index) => {
@@ -102,22 +102,22 @@ export function parseSubtitle({
             start: curr.offset,
             duration: curr.duration,
             end: curr.offset + curr.duration,
-          });
+          })
         } else {
-          prev[prev.length - 1].end = curr.offset + curr.duration;
-          prev[prev.length - 1].text += ` ${curr.text}`;
+          prev[prev.length - 1].end = curr.offset + curr.duration
+          prev[prev.length - 1].text += ` ${curr.text}`
           prev[prev.length - 1].duration =
-            prev[prev.length - 1].end - prev[prev.length - 1].start;
+            prev[prev.length - 1].end - prev[prev.length - 1].start
         }
 
-        return prev;
+        return prev
       },
       [],
-    );
+    )
   }
 
-  if (splitBy === "word") throw new Error("Not implemented");
-  if (splitBy === "sentence") throw new Error("Not implemented");
+  if (splitBy === "word") throw new Error("Not implemented")
+  if (splitBy === "sentence") throw new Error("Not implemented")
 
-  throw new Error("Invalid splitBy option");
+  throw new Error("Invalid splitBy option")
 }

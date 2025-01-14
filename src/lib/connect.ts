@@ -1,13 +1,13 @@
 const searchParams = new URLSearchParams({
   TrustedClientToken: "6A5AA1D4EAFF4E9FB37E23D68491D6F4",
-});
+})
 
 const url = new URL(
   "/consumer/speech/synthesize/readaloud/edge/v1",
   "wss://speech.platform.bing.com",
-);
+)
 
-url.search = searchParams.toString();
+url.search = searchParams.toString()
 
 /**
  *
@@ -17,9 +17,9 @@ url.search = searchParams.toString();
  * @returns The websocket connection instance
  */
 export function connect(outputFormat: string): Promise<WebSocket> {
-  if (!outputFormat) throw new Error("Output format is required");
+  if (!outputFormat) throw new Error("Output format is required")
 
-  const ws = new WebSocket(url.toString());
+  const ws = new WebSocket(url.toString())
 
   const initialMessage = `
   Content-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n
@@ -37,14 +37,14 @@ export function connect(outputFormat: string): Promise<WebSocket> {
       }
     }
   }
-`;
+`
 
-  const { promise, resolve } = Promise.withResolvers<WebSocket>();
+  const { promise, resolve } = Promise.withResolvers<WebSocket>()
 
   ws.addEventListener("open", () => {
-    ws.send(initialMessage);
-    resolve(ws);
-  });
+    ws.send(initialMessage)
+    resolve(ws)
+  })
 
-  return promise;
+  return promise
 }
