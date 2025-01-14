@@ -1,6 +1,11 @@
-import { GenerateOptions, GenerateResult, AudioMetadata, ParseSubtitleOptions } from "../types"
 import { DEFAULT_OPTIONS } from "../constants"
 import { connect } from "../services/tts"
+import {
+  GenerateOptions,
+  GenerateResult,
+  AudioMetadata,
+  ParseSubtitleOptions,
+} from "../types"
 import { parseSubtitle } from "./subtitle"
 
 /**

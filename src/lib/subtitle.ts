@@ -1,7 +1,8 @@
-import { ParseSubtitleOptions, ParseSubtitleResult, AudioMetadata } from "../types"
 import { AUDIO_CONSTANTS } from "../constants"
+import { ParseSubtitleOptions, ParseSubtitleResult } from "../types"
 
-const convertToMs = (duration: number) => Math.floor(duration / AUDIO_CONSTANTS.TIME_FACTOR)
+const convertToMs = (duration: number) =>
+  Math.floor(duration / AUDIO_CONSTANTS.TIME_FACTOR)
 
 /**
  * Parses the metadata sent throughout the websocket connection and returns it as an array of object.
