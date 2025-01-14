@@ -19,12 +19,14 @@
   ],
   "scripts": {
     "build": "unbuild",
+    "knip": "knip",
     "lint": "eslint . --cache",
     "prepack": "unbuild"
   },
   "devDependencies": {
     "@echristian/eslint-config": "^0.0.14",
     "eslint": "^9.18.0",
+    "knip": "^5.42.0",
     "typescript": "^5.7.3",
     "unbuild": "^3.3.1",
     "vitest": "^2.1.8"

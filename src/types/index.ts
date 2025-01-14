@@ -62,7 +62,7 @@ export interface ParseSubtitleResult {
 /**
  * Word boundary information from the TTS service
  */
-export interface WordBoundary {
+interface WordBoundary {
   /** Type of boundary marker */
   Type: "WordBoundary"
   /** Detailed boundary data */
