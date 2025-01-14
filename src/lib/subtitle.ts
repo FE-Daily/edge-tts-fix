@@ -1,72 +1,8 @@
+import { ParseSubtitleOptions, ParseSubtitleResult } from "~/types"
+
 const FACTOR = 10_000
 
 const convertToMs = (duration: number) => Math.floor(duration / FACTOR)
-
-export interface AudioMetadata {
-  Metadata: [WordBoundary]
-}
-
-export interface ParseSubtitleOptions {
-  /**
-   * The function will split the cues based on this option
-   *
-   * - `"sentence"` will split the text using `Intl.Segmenter`
-   * - `"word"` will split the text to X count of words for each cue
-   * - `"duration"` will split the text to X duration of milliseconds for each cue
-   */
-  splitBy: "sentence" | "word" | "duration"
-
-  /**
-   * Used when splitting by `"words"` or `"duration"`
-   *
-   * - When splitting by `"words"`,  count means the amount of words for each cue
-   * - When splitting by `"duration"`, count means the duration in milliseconds for each cue
-   */
-  count?: number
-
-  /**
-   * Array of metadata received throughout the websocket connection
-   */
-  metadata: Array<AudioMetadata>
-}
-
-/**
- * Parsed cue in js
- */
-export interface ParseSubtitleResult {
-  /**
-   * Text of the cue
-   */
-  text: string
-
-  /**
-   * The start timestamp of the cue in milliseconds
-   */
-  start: number
-
-  /**
-   * The end timestamp of the cue in milliseconds
-   */
-  end: number
-
-  /**
-   * The duration of the cue in milliseconds
-   */
-  duration: number
-}
-
-interface WordBoundary {
-  Type: "WordBoundary"
-  Data: {
-    Offset: number
-    Duration: number
-    text: {
-      Text: string
-      Length: number
-      BoundaryType: "WordBoundary"
-    }
-  }
-}
 
 /**
  * Parses the metadata sent throughout the websocket connection and returns it as an array of object.
