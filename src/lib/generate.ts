@@ -1,8 +1,6 @@
-import { GenerateOptions, GenerateResult } from "~/types"
-
-import type { AudioMetadata, ParseSubtitleOptions } from "./subtitle"
-
-import { connect } from "./connect"
+import { GenerateOptions, GenerateResult, AudioMetadata, ParseSubtitleOptions } from "../types"
+import { DEFAULT_OPTIONS } from "../constants"
+import { connect } from "../services/tts"
 import { parseSubtitle } from "./subtitle"
 
 /**
@@ -14,13 +12,12 @@ import { parseSubtitle } from "./subtitle"
 export async function generate(
   options: GenerateOptions,
 ): Promise<GenerateResult> {
-  const voice = options.voice ?? "en-US-AvaNeural"
-  const language = options.language ?? "en-US"
-
-  const outputFormat = options.outputFormat ?? "audio-24khz-96kbitrate-mono-mp3"
-  const rate = options.rate ?? "default"
-  const pitch = options.pitch ?? "default"
-  const volume = options.volume ?? "default"
+  const voice = options.voice ?? DEFAULT_OPTIONS.voice
+  const language = options.language ?? DEFAULT_OPTIONS.language
+  const outputFormat = options.outputFormat ?? DEFAULT_OPTIONS.outputFormat
+  const rate = options.rate ?? DEFAULT_OPTIONS.rate
+  const pitch = options.pitch ?? DEFAULT_OPTIONS.pitch
+  const volume = options.volume ?? DEFAULT_OPTIONS.volume
 
   const subtitle: Omit<ParseSubtitleOptions, "metadata"> = {
     splitBy: "sentence",
