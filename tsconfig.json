@@ -8,11 +8,10 @@
     "skipLibCheck": true,
     "isolatedDeclarations": true,
     "declaration": true,
-    
+
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
     }
-  },
-  "include": ["src"]
+  }
 }

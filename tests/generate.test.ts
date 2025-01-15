@@ -1,6 +1,4 @@
-import { describe, it, expect, vi } from "vitest"
-import { generate } from "../src/lib/generate"
-import { DEFAULT_OPTIONS } from "../src/constants/main"
+import { describe, it } from "vitest"
 
 describe("generate", () => {
   it("should generate audio with default options", async () => {
