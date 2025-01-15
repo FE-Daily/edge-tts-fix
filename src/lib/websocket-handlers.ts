@@ -1,4 +1,8 @@
-import { AudioMetadata, GenerateResult, ParseSubtitleOptions } from "../types/main"
+import {
+  AudioMetadata,
+  GenerateResult,
+  ParseSubtitleOptions,
+} from "../types/main"
 import { parseSubtitle } from "./subtitle"
 
 async function processAudioChunks(
@@ -17,8 +21,10 @@ async function processAudioChunks(
   return processed
 }
 
-function handleMetadataMessage(message: string): AudioMetadata | null {
-  if (!message.includes("Path:audio.metadata")) return null
+function handleMetadataMessage(message: string): AudioMetadata | undefined {
+  const hasMetadata = message.includes("Path:audio.metadata")
+  if (!hasMetadata) return undefined
+
   const jsonString = message.split("Path:audio.metadata")[1].trim()
   return JSON.parse(jsonString) as AudioMetadata
 }
@@ -45,35 +51,33 @@ export function setupWebSocketHandlers(
 
   socket.addEventListener("error", reject)
 
-  const messageHandlers = {
-    handleBinaryData(data: Blob) {
-      audioChunks.push(data)
-    },
+  function handleBinaryData(data: Blob) {
+    audioChunks.push(data)
+  }
 
-    async handleTextData(data: string) {
-      if (data.includes("Path:turn.end")) {
-        const processedChunks = await processAudioChunks(audioChunks)
-        resolve({
-          audio: new Blob(processedChunks),
-          subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
-        })
-        return
-      }
+  async function handleTextData(data: string) {
+    if (data.includes("Path:turn.end")) {
+      const processedChunks = await processAudioChunks(audioChunks)
+      resolve({
+        audio: new Blob(processedChunks),
+        subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
+      })
+      return
+    }
 
-      const metadata = handleMetadataMessage(data)
-      if (metadata) {
-        subtitleChunks.push(metadata)
-      }
-    },
+    const metadata = handleMetadataMessage(data)
+    if (metadata !== undefined) {
+      subtitleChunks.push(metadata)
+    }
   }
 
   socket.addEventListener(
     "message",
     async ({ data }: MessageEvent<string | Blob>) => {
       if (typeof data === "string") {
-        await messageHandlers.handleTextData(data)
+        await handleTextData(data)
       } else {
-        messageHandlers.handleBinaryData(toBlobLike(data))
+        handleBinaryData(toBlobLike(data))
       }
     },
   )
