@@ -8,15 +8,18 @@ import {
 } from "../types/main"
 import { parseSubtitle } from "./subtitle"
 
-function createSSMLRequest(
-  requestId: string,
-  text: string,
-  voice: string,
-  language: string,
-  rate: string,
-  pitch: string,
-  volume: string,
-): string {
+interface SSMLParams {
+  requestId: string
+  text: string
+  voice: string
+  language: string
+  rate: string
+  pitch: string
+  volume: string
+}
+
+function createSSMLString(params: SSMLParams): string {
+  const { requestId, text, voice, language, rate, pitch, volume } = params
   return `
   X-RequestId:${requestId}\r\n
   Content-Type:application/ssml+xml\r\n
@@ -46,9 +49,21 @@ function handleMetadataMessage(message: string): AudioMetadata | null {
   return JSON.parse(jsonString) as AudioMetadata
 }
 
+/**
+ * Ensures binary data is converted to a Blob for consistent handling across platforms.
+ * This is needed because WebSocket message.data can be different types:
+ * - In browsers: Blob
+ * - In Node.js: Buffer (which extends Uint8Array)
+ * This helper provides a uniform Blob interface without relying on Node-specific APIs.
+ */
+function toBlobLike(data: ArrayBuffer | Blob): Blob {
+  if (data instanceof Blob) return data
+  return new Blob([data])
+}
+
 function setupWebSocketHandlers(
   socket: WebSocket,
-  options: ParseSubtitleOptions,
+  options: Omit<ParseSubtitleOptions, "metadata">,
 ): Promise<GenerateResult> {
   const audioChunks: Array<Uint8Array> = []
   const subtitleChunks: Array<AudioMetadata> = []
@@ -56,26 +71,35 @@ function setupWebSocketHandlers(
 
   socket.addEventListener("error", reject)
 
-  socket.addEventListener(
-    "message",
-    async (message: MessageEvent<string | Blob>) => {
-      if (typeof message.data !== "string") {
-        const audioData = await handleBinaryMessage(message.data)
-        audioChunks.push(audioData)
-        return
-      }
+  const messageHandlers = {
+    async handleBinaryData(data: Blob) {
+      const audioData = await handleBinaryMessage(data)
+      audioChunks.push(audioData)
+    },
 
-      const metadata = handleMetadataMessage(message.data)
-      if (metadata) {
-        subtitleChunks.push(metadata)
-        return
-      }
-
-      if (message.data.includes("Path:turn.end")) {
+    handleTextData(data: string) {
+      if (data.includes("Path:turn.end")) {
         resolve({
           audio: new Blob(audioChunks),
           subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
         })
+        return
+      }
+
+      const metadata = handleMetadataMessage(data)
+      if (metadata) {
+        subtitleChunks.push(metadata)
+      }
+    },
+  }
+
+  socket.addEventListener(
+    "message",
+    async ({ data }: MessageEvent<string | Blob>) => {
+      if (typeof data === "string") {
+        messageHandlers.handleTextData(data)
+      } else {
+        await messageHandlers.handleBinaryData(toBlobLike(data))
       }
     },
   )
@@ -108,15 +132,15 @@ export async function generate(
   const socket = await connect(outputFormat)
   const requestId = globalThis.crypto.randomUUID()
 
-  const requestString = createSSMLRequest(
+  const requestString = createSSMLString({
     requestId,
-    options.text,
+    text: options.text,
     voice,
     language,
     rate,
     pitch,
     volume,
-  )
+  })
 
   const result = setupWebSocketHandlers(socket, subtitle)
   socket.send(requestString)
