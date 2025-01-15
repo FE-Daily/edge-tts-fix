@@ -1,12 +1,87 @@
-import { DEFAULT_OPTIONS } from "../constants"
+import { DEFAULT_OPTIONS } from "../constants/main"
 import { connect } from "../services/tts"
 import {
   GenerateOptions,
   GenerateResult,
   AudioMetadata,
   ParseSubtitleOptions,
-} from "../types"
+} from "../types/main"
 import { parseSubtitle } from "./subtitle"
+
+function createSSMLRequest(
+  requestId: string,
+  text: string,
+  voice: string,
+  language: string,
+  rate: string,
+  pitch: string,
+  volume: string,
+): string {
+  return `
+  X-RequestId:${requestId}\r\n
+  Content-Type:application/ssml+xml\r\n
+  Path:ssml\r\n\r\n
+
+  <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="${language}">
+    <voice name="${voice}">
+      <prosody rate="${rate}" pitch="${pitch}" volume="${volume}">
+        ${text}
+      </prosody>
+    </voice>
+  </speak>
+  `
+}
+
+async function handleBinaryMessage(message: Blob): Promise<Uint8Array> {
+  const separator = "Path:audio\r\n"
+  const bytes = new Uint8Array(await message.arrayBuffer())
+  const binaryString = new TextDecoder().decode(bytes)
+  const index = binaryString.indexOf(separator) + separator.length
+  return bytes.subarray(index)
+}
+
+function handleMetadataMessage(message: string): AudioMetadata | null {
+  if (!message.includes("Path:audio.metadata")) return null
+  const jsonString = message.split("Path:audio.metadata")[1].trim()
+  return JSON.parse(jsonString) as AudioMetadata
+}
+
+function setupWebSocketHandlers(
+  socket: WebSocket,
+  options: ParseSubtitleOptions,
+): Promise<GenerateResult> {
+  const audioChunks: Array<Uint8Array> = []
+  const subtitleChunks: Array<AudioMetadata> = []
+  const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>()
+
+  socket.addEventListener("error", reject)
+
+  socket.addEventListener(
+    "message",
+    async (message: MessageEvent<string | Blob>) => {
+      if (typeof message.data !== "string") {
+        const audioData = await handleBinaryMessage(message.data)
+        audioChunks.push(audioData)
+        return
+      }
+
+      const metadata = handleMetadataMessage(message.data)
+      if (metadata) {
+        subtitleChunks.push(metadata)
+        return
+      }
+
+      if (message.data.includes("Path:turn.end")) {
+        resolve({
+          audio: new Blob(audioChunks),
+          subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
+        })
+      }
+    },
+  )
+
+  return promise
+}
 
 /**
  * Asynchronously generates audio and subtitle data based on the provided options.
@@ -31,65 +106,20 @@ export async function generate(
   }
 
   const socket = await connect(outputFormat)
-
   const requestId = globalThis.crypto.randomUUID()
 
-  const requestString = `
-  X-RequestId:${requestId}\r\n
-  Content-Type:application/ssml+xml\r\n
-  Path:ssml\r\n\r\n
-
-  <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="${language}">
-    <voice name="${voice}">
-      <prosody rate="${rate}" pitch="${pitch}" volume="${volume}">
-        ${options.text}
-      </prosody>
-    </voice>
-  </speak>
-  `
-
-  const audioChunks: Array<Uint8Array> = []
-  const subtitleChunks: Array<AudioMetadata> = []
-
-  const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>()
-
-  socket.send(requestString)
-
-  socket.addEventListener("error", reject)
-
-  socket.addEventListener(
-    "message",
-    async (message: MessageEvent<string | Blob>) => {
-      if (typeof message.data !== "string") {
-        const blob = new Blob([message.data])
-
-        const separator = "Path:audio\r\n"
-
-        const bytes = new Uint8Array(await blob.arrayBuffer())
-        const binaryString = new TextDecoder().decode(bytes)
-
-        const index = binaryString.indexOf(separator) + separator.length
-        const audioData = bytes.subarray(index)
-
-        return audioChunks.push(audioData)
-      }
-
-      if (message.data.includes("Path:audio.metadata")) {
-        const jsonString = message.data.split("Path:audio.metadata")[1].trim()
-        const json = JSON.parse(jsonString) as AudioMetadata
-
-        return subtitleChunks.push(json)
-      }
-
-      if (message.data.includes("Path:turn.end")) {
-        resolve({
-          audio: new Blob(audioChunks),
-          subtitle: parseSubtitle({ metadata: subtitleChunks, ...subtitle }),
-        })
-        return
-      }
-    },
+  const requestString = createSSMLRequest(
+    requestId,
+    options.text,
+    voice,
+    language,
+    rate,
+    pitch,
+    volume,
   )
 
-  return promise
+  const result = setupWebSocketHandlers(socket, subtitle)
+  socket.send(requestString)
+
+  return result
 }
