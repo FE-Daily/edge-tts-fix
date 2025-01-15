@@ -35,12 +35,20 @@ function createSSMLString(params: SSMLParams): string {
   `
 }
 
-async function handleBinaryMessage(message: Blob): Promise<Uint8Array> {
+async function processAudioChunks(
+  chunks: Array<Blob>,
+): Promise<Array<Uint8Array>> {
   const separator = "Path:audio\r\n"
-  const bytes = new Uint8Array(await message.arrayBuffer())
-  const binaryString = new TextDecoder().decode(bytes)
-  const index = binaryString.indexOf(separator) + separator.length
-  return bytes.subarray(index)
+  const processed: Array<Uint8Array> = []
+
+  for (const chunk of chunks) {
+    const bytes = new Uint8Array(await chunk.arrayBuffer())
+    const binaryString = new TextDecoder().decode(bytes)
+    const index = binaryString.indexOf(separator) + separator.length
+    processed.push(bytes.subarray(index))
+  }
+
+  return processed
 }
 
 function handleMetadataMessage(message: string): AudioMetadata | null {
@@ -65,22 +73,22 @@ function setupWebSocketHandlers(
   socket: WebSocket,
   options: Omit<ParseSubtitleOptions, "metadata">,
 ): Promise<GenerateResult> {
-  const audioChunks: Array<Uint8Array> = []
+  const audioChunks: Array<Blob> = []
   const subtitleChunks: Array<AudioMetadata> = []
   const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>()
 
   socket.addEventListener("error", reject)
 
   const messageHandlers = {
-    async handleBinaryData(data: Blob) {
-      const audioData = await handleBinaryMessage(data)
-      audioChunks.push(audioData)
+    handleBinaryData(data: Blob) {
+      audioChunks.push(data)
     },
 
-    handleTextData(data: string) {
+    async handleTextData(data: string) {
       if (data.includes("Path:turn.end")) {
+        const processedChunks = await processAudioChunks(audioChunks)
         resolve({
-          audio: new Blob(audioChunks),
+          audio: new Blob(processedChunks),
           subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
         })
         return
@@ -97,9 +105,9 @@ function setupWebSocketHandlers(
     "message",
     async ({ data }: MessageEvent<string | Blob>) => {
       if (typeof data === "string") {
-        messageHandlers.handleTextData(data)
+        await messageHandlers.handleTextData(data)
       } else {
-        await messageHandlers.handleBinaryData(toBlobLike(data))
+        messageHandlers.handleBinaryData(toBlobLike(data))
       }
     },
   )
