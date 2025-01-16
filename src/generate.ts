@@ -1,7 +1,7 @@
-import { DEFAULT_OPTIONS } from "./lib/constants"
+import { DEFAULT_OPTIONS } from "./lib/config"
 import { createSSMLString } from "./lib/ssml"
-import { createSocket } from "./lib/websocket"
-import { handleTTSConnection } from "./lib/websocket-handlers"
+import { createSocket } from "./lib/tts-connection"
+import { handleTTSConnection } from "./lib/tts-processor"
 import { GenerateOptions, GenerateResult } from "./types/generate"
 import { ParseSubtitleOptions } from "./types/subtitle"
 

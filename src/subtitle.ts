@@ -1,4 +1,4 @@
-import { AUDIO_CONSTANTS } from "./lib/constants"
+import { AUDIO_CONSTANTS } from "./lib/config"
 import { ParseSubtitleOptions, ParseSubtitleResult } from "./types/subtitle"
 
 const convertToMs = (duration: number) =>
