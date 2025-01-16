@@ -5,6 +5,11 @@ export const DEFAULT_OPTIONS = {
   rate: "default",
   pitch: "default",
   volume: "default",
+  subtitle: {
+    splitBy: "word",
+    wordsPerCue: 10,
+    durationPerCue: 5000,
+  },
 } as const
 
 export const WEBSOCKET_CONFIG = {

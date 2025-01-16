@@ -22,9 +22,12 @@ export async function generate(
   const volume = options.volume ?? DEFAULT_OPTIONS.volume
 
   const subtitle: Omit<ParseSubtitleOptions, "metadata"> = {
-    splitBy: "sentence",
-    count: 1,
-    ...options.subtitle,
+    splitBy: options.subtitle?.splitBy ?? DEFAULT_OPTIONS.subtitle.splitBy,
+    wordsPerCue:
+      options.subtitle?.wordsPerCue ?? DEFAULT_OPTIONS.subtitle.wordsPerCue,
+    durationPerCue:
+      options.subtitle?.durationPerCue ??
+      DEFAULT_OPTIONS.subtitle.durationPerCue,
   }
 
   const socket = await createSocket(outputFormat)

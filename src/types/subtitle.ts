@@ -1,4 +1,4 @@
-import type { AudioMetadata } from './metadata'
+import type { AudioMetadata } from "./metadata"
 
 /**
  * Options for parsing and generating subtitles
@@ -6,13 +6,14 @@ import type { AudioMetadata } from './metadata'
 export interface ParseSubtitleOptions {
   /**
    * Method to split the text into subtitle cues
-   * - 'sentence': splits using Intl.Segmenter
    * - 'word': splits by word count
    * - 'duration': splits by time duration
    */
-  splitBy: "sentence" | "word" | "duration"
-  /** Number of words or duration in milliseconds per subtitle (used with 'word' or 'duration' splitBy) */
-  count?: number
+  splitBy: "word" | "duration"
+  /** Number of words per subtitle cue when using 'word' splitBy */
+  wordsPerCue?: number
+  /** Duration in milliseconds per subtitle cue when using 'duration' splitBy */
+  durationPerCue?: number
   /** Audio metadata used for timing information */
   metadata: Array<AudioMetadata>
 }
