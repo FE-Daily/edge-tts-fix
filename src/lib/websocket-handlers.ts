@@ -6,12 +6,12 @@ import { parseSubtitle } from "../subtitle"
 
 const AUDIO_PATH_SEPARATOR = "Path:audio\r\n"
 
-interface WebSocketState {
+interface State {
   audioChunks: Array<Blob>
   subtitleChunks: Array<AudioMetadata>
 }
 
-function createInitialState(): WebSocketState {
+function createInitialState(): State {
   return {
     audioChunks: [],
     subtitleChunks: [],
@@ -42,9 +42,9 @@ function parseMetadataMessage(message: string): AudioMetadata | undefined {
   return JSON.parse(jsonString) as AudioMetadata
 }
 
-function handleTextMessage(
+function handleStringMessage(
   message: string,
-  state: WebSocketState,
+  state: State,
   socket: WebSocket,
 ): void {
   if (message.includes("Path:turn.end")) {
@@ -58,10 +58,7 @@ function handleTextMessage(
   }
 }
 
-function handleBinaryMessage(
-  data: ArrayBuffer | Blob,
-  state: WebSocketState,
-): void {
+function handleBinaryMessage(data: ArrayBuffer | Blob, state: State): void {
   state.audioChunks.push(toBlobLike(data))
 }
 
@@ -77,7 +74,7 @@ function toBlobLike(data: ArrayBuffer | Blob): Blob {
   return new Blob([data])
 }
 
-export function setupWebSocketHandlers(
+export function streamTTS(
   socket: WebSocket,
   options: Omit<ParseSubtitleOptions, "metadata">,
 ): Promise<GenerateResult> {
@@ -98,7 +95,7 @@ export function setupWebSocketHandlers(
     "message",
     ({ data }: MessageEvent<string | Blob>) => {
       if (typeof data === "string") {
-        handleTextMessage(data, state, socket)
+        handleStringMessage(data, state, socket)
       } else {
         handleBinaryMessage(data, state)
       }
