@@ -1,7 +1,7 @@
 import { DEFAULT_OPTIONS } from "./lib/constants"
 import { createSSMLString } from "./lib/ssml"
 import { streamTTS } from "./lib/websocket-handlers"
-import { connect } from "./services/tts"
+import { createSocket } from "./services/tts"
 import { GenerateOptions, GenerateResult } from "./types/generate"
 import { ParseSubtitleOptions } from "./types/subtitle"
 
@@ -27,7 +27,7 @@ export async function generate(
     ...options.subtitle,
   }
 
-  const socket = await connect(outputFormat)
+  const socket = await createSocket(outputFormat)
   const requestId = globalThis.crypto.randomUUID()
 
   const requestString = createSSMLString({

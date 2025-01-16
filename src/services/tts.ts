@@ -27,7 +27,7 @@ function createInitialMessage(outputFormat: string): string {
     }`
 }
 
-export function connect(outputFormat: string): Promise<WebSocket> {
+export function createSocket(outputFormat: string): Promise<WebSocket> {
   if (!outputFormat) throw new Error("Output format is required")
 
   const ws = new WebSocket(createUrl().toString())
