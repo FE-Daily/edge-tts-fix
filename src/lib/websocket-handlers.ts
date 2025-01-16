@@ -41,6 +41,19 @@ function toBlobLike(data: ArrayBuffer | Blob): Blob {
   return new Blob([data])
 }
 
+async function processFinalResult(
+  audioChunks: Array<Blob>,
+  subtitleChunks: Array<AudioMetadata>,
+  options: Omit<ParseSubtitleOptions, "metadata">,
+  resolve: (value: GenerateResult) => void,
+) {
+  const processedChunks = await processAudioChunks(audioChunks)
+  resolve({
+    audio: new Blob(processedChunks),
+    subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
+  })
+}
+
 export function setupWebSocketHandlers(
   socket: WebSocket,
   options: Omit<ParseSubtitleOptions, "metadata">,
@@ -55,13 +68,9 @@ export function setupWebSocketHandlers(
     audioChunks.push(data)
   }
 
-  async function handleTextData(data: string) {
+  function handleTextData(data: string) {
     if (data.includes("Path:turn.end")) {
-      const processedChunks = await processAudioChunks(audioChunks)
-      resolve({
-        audio: new Blob(processedChunks),
-        subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
-      })
+      socket.close()
       return
     }
 
@@ -71,11 +80,15 @@ export function setupWebSocketHandlers(
     }
   }
 
+  socket.addEventListener("close", () => {
+    void processFinalResult(audioChunks, subtitleChunks, options, resolve)
+  })
+
   socket.addEventListener(
     "message",
-    async ({ data }: MessageEvent<string | Blob>) => {
+    ({ data }: MessageEvent<string | Blob>) => {
       if (typeof data === "string") {
-        await handleTextData(data)
+        handleTextData(data)
       } else {
         handleBinaryData(toBlobLike(data))
       }
