@@ -8,11 +8,18 @@ export interface ParseSubtitleOptions {
    * Method to split the text into subtitle cues
    * - 'word': splits by word count
    * - 'duration': splits by time duration
+   * @default 'word'
    */
   splitBy: "word" | "duration"
-  /** Number of words per subtitle cue when using 'word' splitBy */
+  /**
+   * Number of words per subtitle cue when using 'word' splitBy
+   * @default 10
+   */
   wordsPerCue?: number
-  /** Duration in milliseconds per subtitle cue when using 'duration' splitBy */
+  /**
+   * Duration in milliseconds per subtitle cue when using 'duration' splitBy
+   * @default 5000
+   */
   durationPerCue?: number
   /** Audio metadata used for timing information */
   metadata: Array<AudioMetadata>

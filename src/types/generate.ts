@@ -6,19 +6,33 @@ import { ParseSubtitleOptions, ParseSubtitleResult } from "./subtitle"
 export interface GenerateOptions {
   /** The text that will be generated as audio */
   text: string
-  /** Voice persona used to read the message */
+  /** Voice persona used to read the message
+   * @default 'en-US-AvaNeural'
+   */
   voice?: string
-  /** Language code for the voice */
+  /** Language code for the voice
+   * @default 'en-US'
+   */
   language?: string
-  /** Audio output format */
+  /** Audio output format
+   * @default 'audio-24khz-96kbitrate-mono-mp3'
+   */
   outputFormat?: string
-  /** Speaking rate/speed of the voice */
+  /** Speaking rate/speed of the voice
+   * @default 'default'
+   */
   rate?: string
-  /** Voice pitch adjustment */
+  /** Voice pitch adjustment
+   * @default 'default'
+   */
   pitch?: string
-  /** Voice volume level */
+  /** Voice volume level
+   * @default 'default'
+   */
   volume?: string
-  /** Subtitle generation options (excluding metadata) */
+  /** Subtitle generation options (excluding metadata)
+   * @default { splitBy: 'word', wordsPerCue: 10, durationPerCue: 5000 }
+   */
   subtitle?: Omit<ParseSubtitleOptions, "metadata">
 }
 
