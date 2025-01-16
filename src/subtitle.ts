@@ -1,5 +1,5 @@
-import { AUDIO_CONSTANTS } from "./constants/main"
-import { ParseSubtitleOptions, ParseSubtitleResult } from "./types/main"
+import { AUDIO_CONSTANTS } from "./lib/constants"
+import { ParseSubtitleOptions, ParseSubtitleResult } from "./types/subtitle"
 
 const convertToMs = (duration: number) =>
   Math.floor(duration / AUDIO_CONSTANTS.TIME_FACTOR)

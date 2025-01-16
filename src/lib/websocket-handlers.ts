@@ -1,8 +1,7 @@
-import {
-  AudioMetadata,
-  GenerateResult,
-  ParseSubtitleOptions,
-} from "../types/main"
+import { GenerateResult } from "~/types/generate"
+import { AudioMetadata } from "~/types/metadata"
+import { ParseSubtitleOptions } from "~/types/subtitle"
+
 import { parseSubtitle } from "../subtitle"
 
 async function processAudioChunks(

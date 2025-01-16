@@ -1,4 +1,4 @@
-import { WEBSOCKET_CONFIG } from "../constants/main"
+import { WEBSOCKET_CONFIG } from "../lib/constants"
 
 function createUrl(): URL {
   const searchParams = new URLSearchParams({
