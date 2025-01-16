@@ -1,7 +1,7 @@
 import { DEFAULT_OPTIONS } from "./lib/constants"
 import { createSSMLString } from "./lib/ssml"
-import { streamTTS } from "./lib/websocket-handlers"
 import { createSocket } from "./lib/websocket"
+import { handleTTSConnection } from "./lib/websocket-handlers"
 import { GenerateOptions, GenerateResult } from "./types/generate"
 import { ParseSubtitleOptions } from "./types/subtitle"
 
@@ -40,7 +40,8 @@ export async function generate(
     volume,
   })
 
-  const result = streamTTS(socket, subtitle)
+  const result = handleTTSConnection(socket, subtitle)
+
   socket.send(requestString)
 
   return result

@@ -74,7 +74,7 @@ function toBlobLike(data: ArrayBuffer | Blob): Blob {
   return new Blob([data])
 }
 
-export function streamTTS(
+export function handleTTSConnection(
   socket: WebSocket,
   options: Omit<ParseSubtitleOptions, "metadata">,
 ): Promise<GenerateResult> {
