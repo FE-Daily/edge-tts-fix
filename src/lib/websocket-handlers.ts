@@ -4,28 +4,65 @@ import { ParseSubtitleOptions } from "~/types/subtitle"
 
 import { parseSubtitle } from "../subtitle"
 
+const AUDIO_PATH_SEPARATOR = "Path:audio\r\n"
+
+interface WebSocketState {
+  audioChunks: Array<Blob>
+  subtitleChunks: Array<AudioMetadata>
+}
+
+function createInitialState(): WebSocketState {
+  return {
+    audioChunks: [],
+    subtitleChunks: [],
+  }
+}
+
 async function processAudioChunks(
   chunks: Array<Blob>,
 ): Promise<Array<Uint8Array>> {
-  const separator = "Path:audio\r\n"
   const processed: Array<Uint8Array> = []
 
   for (const chunk of chunks) {
     const bytes = new Uint8Array(await chunk.arrayBuffer())
     const binaryString = new TextDecoder().decode(bytes)
-    const index = binaryString.indexOf(separator) + separator.length
+    const index =
+      binaryString.indexOf(AUDIO_PATH_SEPARATOR) + AUDIO_PATH_SEPARATOR.length
     processed.push(bytes.subarray(index))
   }
 
   return processed
 }
 
-function handleMetadataMessage(message: string): AudioMetadata | undefined {
+function parseMetadataMessage(message: string): AudioMetadata | undefined {
   const hasMetadata = message.includes("Path:audio.metadata")
   if (!hasMetadata) return undefined
 
   const jsonString = message.split("Path:audio.metadata")[1].trim()
   return JSON.parse(jsonString) as AudioMetadata
+}
+
+function handleTextMessage(
+  message: string,
+  state: WebSocketState,
+  socket: WebSocket,
+): void {
+  if (message.includes("Path:turn.end")) {
+    socket.close()
+    return
+  }
+
+  const metadata = parseMetadataMessage(message)
+  if (metadata !== undefined) {
+    state.subtitleChunks.push(metadata)
+  }
+}
+
+function handleBinaryMessage(
+  data: ArrayBuffer | Blob,
+  state: WebSocketState,
+): void {
+  state.audioChunks.push(toBlobLike(data))
 }
 
 /**
@@ -40,56 +77,30 @@ function toBlobLike(data: ArrayBuffer | Blob): Blob {
   return new Blob([data])
 }
 
-async function processFinalResult(
-  audioChunks: Array<Blob>,
-  subtitleChunks: Array<AudioMetadata>,
-  options: Omit<ParseSubtitleOptions, "metadata">,
-  resolve: (value: GenerateResult) => void,
-) {
-  const processedChunks = await processAudioChunks(audioChunks)
-  resolve({
-    audio: new Blob(processedChunks),
-    subtitle: parseSubtitle({ metadata: subtitleChunks, ...options }),
-  })
-}
-
 export function setupWebSocketHandlers(
   socket: WebSocket,
   options: Omit<ParseSubtitleOptions, "metadata">,
 ): Promise<GenerateResult> {
-  const audioChunks: Array<Blob> = []
-  const subtitleChunks: Array<AudioMetadata> = []
+  const state = createInitialState()
   const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>()
 
   socket.addEventListener("error", reject)
 
-  function handleBinaryData(data: Blob) {
-    audioChunks.push(data)
-  }
-
-  function handleTextData(data: string) {
-    if (data.includes("Path:turn.end")) {
-      socket.close()
-      return
-    }
-
-    const metadata = handleMetadataMessage(data)
-    if (metadata !== undefined) {
-      subtitleChunks.push(metadata)
-    }
-  }
-
-  socket.addEventListener("close", () => {
-    void processFinalResult(audioChunks, subtitleChunks, options, resolve)
+  socket.addEventListener("close", async () => {
+    const processedChunks = await processAudioChunks(state.audioChunks)
+    resolve({
+      audio: new Blob(processedChunks),
+      subtitle: parseSubtitle({ metadata: state.subtitleChunks, ...options }),
+    })
   })
 
   socket.addEventListener(
     "message",
     ({ data }: MessageEvent<string | Blob>) => {
       if (typeof data === "string") {
-        handleTextData(data)
+        handleTextMessage(data, state, socket)
       } else {
-        handleBinaryData(toBlobLike(data))
+        handleBinaryMessage(data, state)
       }
     },
   )
