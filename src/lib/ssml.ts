@@ -1,4 +1,4 @@
-interface SSMLParams {
+export interface SSMLParams {
   requestId: string
   text: string
   voice: string
