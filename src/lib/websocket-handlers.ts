@@ -3,7 +3,7 @@ import {
   GenerateResult,
   ParseSubtitleOptions,
 } from "../types/main"
-import { parseSubtitle } from "./subtitle"
+import { parseSubtitle } from "../subtitle"
 
 async function processAudioChunks(
   chunks: Array<Blob>,

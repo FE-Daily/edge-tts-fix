@@ -1,12 +1,12 @@
-import { DEFAULT_OPTIONS } from "../constants/main"
-import { connect } from "../services/tts"
+import { DEFAULT_OPTIONS } from "./constants/main"
+import { createSSMLString } from "./lib/ssml"
+import { setupWebSocketHandlers } from "./lib/websocket-handlers"
+import { connect } from "./services/tts"
 import {
   GenerateOptions,
   GenerateResult,
   ParseSubtitleOptions,
-} from "../types/main"
-import { createSSMLString } from "./ssml"
-import { setupWebSocketHandlers } from "./websocket-handlers"
+} from "./types/main"
 
 /**
  * Asynchronously generates audio and subtitle data based on the provided options.

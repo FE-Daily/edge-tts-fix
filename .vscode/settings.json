@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
     "SSML"
-  ]
+  ],
+  "deno.enable": false
 }
