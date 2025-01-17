@@ -6,7 +6,7 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "isolatedDeclarations": true,
+    // "isolatedDeclarations": true,
     "declaration": true,
 
     "baseUrl": ".",

@@ -2,7 +2,7 @@ import { DEFAULT_OPTIONS } from "./lib/config"
 import { createSSMLString } from "./lib/ssml"
 import { createSocket } from "./lib/tts-connection"
 import { handleTTSConnection } from "./lib/tts-processor"
-import { GenerateOptions, GenerateResult } from "./types/generate"
+import { GenerateOptions } from "./types/generate"
 import { ParseSubtitleOptions } from "./types/subtitle"
 
 /**
@@ -11,9 +11,7 @@ import { ParseSubtitleOptions } from "./types/subtitle"
  * @param options - The options for generating audio and subtitle data.
  * @return  A promise that resolves with the generated audio and subtitle data.
  */
-export async function generate(
-  options: GenerateOptions,
-): Promise<GenerateResult> {
+export async function generate(options: GenerateOptions) {
   const voice = options.voice ?? DEFAULT_OPTIONS.voice
   const language = options.language ?? DEFAULT_OPTIONS.language
   const outputFormat = options.outputFormat ?? DEFAULT_OPTIONS.outputFormat
