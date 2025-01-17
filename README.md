@@ -50,6 +50,13 @@ console.log(result.subtitle);
 
 Main function to generate speech from text.
 
+For detailed configuration options, refer to Microsoft's documentation:
+- [Available voices and language support](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts)
+- [Audio output formats](https://learn.microsoft.com/en-us/dotnet/api/microsoft.cognitiveservices.speech.speechsynthesisoutputformat?view=azure-dotnet)
+- [Pitch, rate, and volumes](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-synthesis-markup-voice)
+
+Note: Some options may be limited by Microsoft Edge's service capabilities.
+
 #### GenerateOptions
 
 | Option       | Type            | Default                              | Description               |
