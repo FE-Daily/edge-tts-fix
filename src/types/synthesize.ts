@@ -1,10 +1,10 @@
 import { ParseSubtitleOptions, ParseSubtitleResult } from "./subtitle"
 
 /**
- * Configuration options for generating audio from text
+ * Configuration options for synthesizing audio from text
  */
-export interface GenerateOptions {
-  /** The text that will be generated as audio */
+export interface SynthesizeOptions {
+  /** The text that will be synthesized as audio */
   text: string
   /** Voice persona used to read the message
    * @default 'en-US-AvaNeural'
@@ -37,9 +37,9 @@ export interface GenerateOptions {
 }
 
 /**
- * Result of the text-to-speech generation process
+ * Result of the text-to-speech synthesis process
  */
-export interface GenerateResult {
+export interface SynthesizeResult {
   /** Generated audio blob */
   audio: Blob
   /** Generated subtitle cues */
