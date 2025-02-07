@@ -4,6 +4,37 @@ import { createSSMLString } from "./lib/ssml"
 import { SynthesizeOptions } from "./types/synthesize"
 import { processAudioChunk, toBlobLike } from "./lib/audio-processor"
 
+/**
+ * Creates an async generator that yields chunks of synthesized audio data.
+ * Each chunk is automatically processed to remove metadata headers.
+ * 
+ * @example
+ * ```typescript
+ * // Basic usage
+ * const generator = synthesizeStream({ text: "Hello world" });
+ * for await (const chunk of generator) {
+ *   // chunk is a Uint8Array of raw audio data
+ *   // Process or save the chunk as needed
+ * }
+ * 
+ * // Combining all chunks into one array
+ * const chunks: Uint8Array[] = [];
+ * for await (const chunk of synthesizeStream({ text: "Hello world" })) {
+ *   chunks.push(chunk);
+ * }
+ * // Now chunks contains all the audio data
+ * ```
+ * 
+ * @param options - Configuration options for speech synthesis
+ * @param options.text - The text to synthesize
+ * @param [options.voice] - Voice persona to use (default: 'en-US-AvaNeural')
+ * @param [options.language] - Language code (default: 'en-US')
+ * @param [options.outputFormat] - Audio format (default: 'audio-24khz-48kbitrate-mono-mp3')
+ * @param [options.rate] - Speaking rate (default: 1)
+ * @param [options.pitch] - Voice pitch (default: 1)
+ * @param [options.volume] - Audio volume (default: 1)
+ * @returns An async generator yielding processed Uint8Array chunks of audio data
+ */
 export async function* synthesizeStream(
   options: SynthesizeOptions,
 ): AsyncGenerator<Uint8Array> {
