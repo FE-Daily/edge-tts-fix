@@ -1,7 +1,7 @@
 import { AudioMetadata, GenerateResult, ParseSubtitleOptions } from "../main"
 import { parseSubtitle } from "../subtitle"
-
-const AUDIO_PATH_SEPARATOR = "Path:audio\r\n"
+import { processAudioChunks, toBlobLike } from "./audio-processor"
+import { parseMetadataMessage } from "./metadata-processor"
 
 interface State {
   audioChunks: Array<Blob>
@@ -13,30 +13,6 @@ function createInitialState(): State {
     audioChunks: [],
     subtitleChunks: [],
   }
-}
-
-async function processAudioChunks(
-  chunks: Array<Blob>,
-): Promise<Array<Uint8Array>> {
-  const processed: Array<Uint8Array> = []
-
-  for (const chunk of chunks) {
-    const bytes = new Uint8Array(await chunk.arrayBuffer())
-    const binaryString = new TextDecoder().decode(bytes)
-    const index =
-      binaryString.indexOf(AUDIO_PATH_SEPARATOR) + AUDIO_PATH_SEPARATOR.length
-    processed.push(bytes.subarray(index))
-  }
-
-  return processed
-}
-
-function parseMetadataMessage(message: string): AudioMetadata | undefined {
-  const hasMetadata = message.includes("Path:audio.metadata")
-  if (!hasMetadata) return undefined
-
-  const jsonString = message.split("Path:audio.metadata")[1].trim()
-  return JSON.parse(jsonString) as AudioMetadata
 }
 
 function handleStringMessage(
@@ -57,18 +33,6 @@ function handleStringMessage(
 
 function handleBinaryMessage(data: ArrayBuffer | Blob, state: State): void {
   state.audioChunks.push(toBlobLike(data))
-}
-
-/**
- * Ensures binary data is converted to a Blob for consistent handling across platforms.
- * This is needed because WebSocket message.data can be different types:
- * - In browsers: Blob
- * - In Node.js: Buffer (which extends Uint8Array)
- * This helper provides a uniform Blob interface without relying on Node-specific APIs.
- */
-function toBlobLike(data: ArrayBuffer | Blob): Blob {
-  if (data instanceof Blob) return data
-  return new Blob([data])
 }
 
 export function handleTTSConnection(
