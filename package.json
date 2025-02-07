@@ -16,7 +16,7 @@
     }
   },
   "bin": {
-    "@echristian/pkg-placeholder": "./dist/cli.js"
+    "@echristian/edge-tts": "./dist/cli.js"
   },
   "files": [
     "dist"
