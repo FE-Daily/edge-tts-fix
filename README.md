@@ -10,10 +10,27 @@ Generate speech from text using Microsoft Edge's text-to-speech service. This li
 npm install @echristian/edge-tts
 ```
 
-## Usage
+## CLI Usage
+
+```bash
+# List all available voices grouped by locale
+npx @echristian/edge-tts voices
+
+# Generate audio from text
+npx @echristian/edge-tts synthesize "Hello world" --audio output.mp3 --voice en-US-AvaNeural
+
+# Generate audio with subtitles
+npx @echristian/edge-tts synthesize "Hello world" --audio output.mp3 --subtitle output.srt --voice en-US-AvaNeural
+```
+
+## API Usage
 
 ```typescript
-import { synthesize, synthesizeStream } from "@echristian/edge-tts";
+import { synthesize, synthesizeStream, getVoices } from "@echristian/edge-tts";
+
+// Get available voices
+const voices = await getVoices();
+console.log(voices); // Array of available voice options
 
 // Basic usage with synthesize()
 const { audio, subtitle } = await synthesize({
@@ -35,6 +52,20 @@ for await (const chunk of synthesizeStream({ text: "Hello world" })) {
 ```
 
 ## API
+
+### getVoices(): Promise<Array<Voice>>
+
+Returns an array of available voices with their properties.
+
+#### Voice Object
+
+| Property     | Type   | Description                    |
+| ------------ | ------ | ------------------------------ |
+| Name         | string | Full name of the voice         |
+| ShortName    | string | Short identifier for the voice |
+| Gender       | string | Voice gender (Male/Female)     |
+| Locale       | string | Language code and region       |
+| FriendlyName | string | Display name for the voice     |
 
 ### synthesize(options): Promise<GenerateResult>
 
