@@ -13,44 +13,51 @@ npm install @echristian/edge-tts
 ## Usage
 
 ```typescript
-import { generate } from "@echristian/edge-tts";
+import { synthesize, synthesizeStream } from "@echristian/edge-tts";
 
-// Basic usage
-const { audio, subtitle } = await generate({
+// Basic usage with synthesize()
+const { audio, subtitle } = await synthesize({
   text: "Hello, world!",
 });
 
-// Advanced usage with options
-const result = await generate({
-  text: "Custom voice with specific settings",
-  voice: "en-US-AvaNeural",
-  language: "en-US",
-  outputFormat: "audio-24khz-96kbitrate-mono-mp3",
-  rate: "fast",
-  pitch: "high",
-  volume: "loud",
-  subtitle: {
-    splitBy: "word",
-    wordsPerCue: 5,
-  },
-});
+// Stream processing usage
+const generator = synthesizeStream({ text: "Hello world" });
+for await (const chunk of generator) {
+  // chunk is a Uint8Array of raw audio data
+  // Process or save each chunk as needed
+}
 
-// Browser: Play the audio
-const url = URL.createObjectURL(result.audio);
-const audio = new Audio(url);
-await audio.play();
-
-// Access subtitle data
-console.log(result.subtitle);
+// Collecting all streamed chunks
+const chunks: Uint8Array[] = [];
+for await (const chunk of synthesizeStream({ text: "Hello world" })) {
+  chunks.push(chunk);
+}
 ```
 
 ## API
 
-### generate(options): Promise<GenerateResult>
+### synthesize(options): Promise<GenerateResult>
 
 Main function to generate speech from text.
 
+### synthesizeStream(options): AsyncGenerator<Uint8Array>
+
+Creates an async generator that yields chunks of processed audio data. Each chunk has metadata headers automatically removed.
+
+Uses the same options as `synthesize()`, but without subtitle support:
+
+| Option       | Type   | Default                           | Description               |
+| ------------ | ------ | --------------------------------- | ------------------------- |
+| text         | string | (required)                        | Text to convert to speech |
+| voice        | string | "en-US-AvaNeural"                 | Voice ID to use           |
+| language     | string | "en-US"                           | Language code             |
+| outputFormat | string | "audio-24khz-96kbitrate-mono-mp3" | Audio format              |
+| rate         | string | "default"                         | Speaking rate             |
+| pitch        | string | "default"                         | Voice pitch               |
+| volume       | string | "default"                         | Audio volume              |
+
 For detailed configuration options, refer to Microsoft's documentation:
+
 - [Available voices and language support](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts)
 - [Audio output formats](https://learn.microsoft.com/en-us/dotnet/api/microsoft.cognitiveservices.speech.speechsynthesisoutputformat?view=azure-dotnet)
 - [Pitch, rate, and volumes](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-synthesis-markup-voice)
@@ -93,7 +100,3 @@ Note: Some options may be limited by Microsoft Edge's service capabilities.
 | start    | number | Start time (ms) |
 | end      | number | End time (ms)   |
 | duration | number | Duration (ms)   |
-
-## License
-
-MIT
