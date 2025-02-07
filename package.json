@@ -2,18 +2,20 @@
   "name": "@echristian/edge-tts",
   "version": "0.0.11",
   "description": "Use Microsoft Edge's online text-to-speech service from JS code directly!",
-  "keywords": [],
-  "license": "MIT",
-  "author": "Erick Christian <erickchristian48@gmail.com> (https://github.com/ericc-ch)",
+  "keywords": ["tts"],
+  "homepage": "https://github.com/ericc-ch/pkg-placeholder",
+  "bugs": "https://github.com/ericc-ch/pkg-placeholder/issues",
+  "author": "Erick Christian <erickchristian48@gmail.com>",
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/main.mjs",
-      "require": "./dist/main.cjs"
+      "types": "./dist/main.d.ts",
+      "default": "./dist/main.js"
     }
   },
-  "main": "./dist/main.mjs",
-  "types": "./dist/main.d.ts",
+  "bin": {
+    "@echristian/pkg-placeholder": "./dist/cli.js"
+  },
   "files": [
     "dist"
   ],
