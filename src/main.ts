@@ -1,4 +1,5 @@
 export * from "./synthesize"
+export * from "./synthesize-stream"
 
 // Types
 export * from "./types/synthesize"

@@ -1,4 +1,4 @@
-import { AudioMetadata, GenerateResult, ParseSubtitleOptions } from "../main"
+import { AudioMetadata,  ParseSubtitleOptions, SynthesizeResult } from "../main"
 import { parseSubtitle } from "../subtitle"
 import { processAudioChunks, toBlobLike } from "./audio-processor"
 import { parseMetadataMessage } from "./metadata-processor"
@@ -38,9 +38,9 @@ function handleBinaryMessage(data: ArrayBuffer | Blob, state: State): void {
 export function handleTTSConnection(
   socket: WebSocket,
   options: Omit<ParseSubtitleOptions, "metadata">,
-): Promise<GenerateResult> {
+): Promise<SynthesizeResult> {
   const state = createInitialState()
-  const { promise, resolve, reject } = Promise.withResolvers<GenerateResult>()
+  const { promise, resolve, reject } = Promise.withResolvers<SynthesizeResult>()
 
   socket.addEventListener("error", reject)
 
