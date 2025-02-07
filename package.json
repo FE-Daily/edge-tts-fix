@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@echristian/eslint-config": "^0.0.18",
+    "@types/node": "^22.13.1",
     "bumpp": "^10.0.2",
     "eslint": "^9.19.0",
     "knip": "^5.43.6",
