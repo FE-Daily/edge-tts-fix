@@ -2,11 +2,11 @@ import { DEFAULT_OPTIONS } from "./lib/constants"
 import { createSocket } from "./lib/connection"
 import { createSSMLString } from "./lib/ssml"
 import { SynthesizeOptions } from "./types/synthesize"
-import { toBlobLike } from "./lib/audio-processor"
+import { processAudioChunk, toBlobLike } from "./lib/audio-processor"
 
 export async function* synthesizeStream(
   options: SynthesizeOptions,
-): AsyncGenerator<Blob> {
+): AsyncGenerator<Uint8Array> {
   const voice = options.voice ?? DEFAULT_OPTIONS.voice
   const language = options.language ?? DEFAULT_OPTIONS.language
   const outputFormat = options.outputFormat ?? DEFAULT_OPTIONS.outputFormat
@@ -57,7 +57,9 @@ export async function* synthesizeStream(
       if (error) throw error;
       
       if (queue.length > 0) {
-        yield queue.shift()!
+        const chunk = queue.shift()!
+        const processed = await processAudioChunk(chunk)
+        yield processed
       } else {
         await new Promise(resolve => setTimeout(resolve, 10))
       }
