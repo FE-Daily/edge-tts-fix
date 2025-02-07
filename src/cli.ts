@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { defineCommand, runMain } from "citty"
 import { Buffer } from "node:buffer"
 import { writeFile } from "node:fs/promises"
