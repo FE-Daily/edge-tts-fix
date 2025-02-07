@@ -1,7 +1,4 @@
-import { GenerateResult } from "~/types/generate"
-import { AudioMetadata } from "~/types/metadata"
-import { ParseSubtitleOptions } from "~/types/subtitle"
-
+import { AudioMetadata, GenerateResult, ParseSubtitleOptions } from "../main"
 import { parseSubtitle } from "../subtitle"
 
 const AUDIO_PATH_SEPARATOR = "Path:audio\r\n"

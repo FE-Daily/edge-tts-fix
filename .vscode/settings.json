@@ -1,6 +1,7 @@
 {
-  "cSpell.words": [
-    "SSML"
-  ],
-  "deno.enable": false
+  "cSpell.words": ["SSML"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
+  }
 }
