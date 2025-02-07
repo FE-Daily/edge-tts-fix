@@ -1,9 +1,9 @@
+import { createSocket } from "./lib/connection"
 import { DEFAULT_OPTIONS } from "./lib/constants"
 import { handleTTSConnection } from "./lib/socket-handler"
 import { createSSMLString } from "./lib/ssml"
-import { createSocket } from "./lib/connection"
-import { SynthesizeOptions, SynthesizeResult } from "./types/synthesize"
 import { ParseSubtitleOptions } from "./types/subtitle"
+import { SynthesizeOptions, SynthesizeResult } from "./types/synthesize"
 
 /**
  * Asynchronously generates audio and subtitle data based on the provided options.

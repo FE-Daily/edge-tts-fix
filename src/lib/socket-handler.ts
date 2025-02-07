@@ -1,4 +1,4 @@
-import { AudioMetadata,  ParseSubtitleOptions, SynthesizeResult } from "../main"
+import { AudioMetadata, ParseSubtitleOptions, SynthesizeResult } from "../main"
 import { parseSubtitle } from "../subtitle"
 import { processAudioChunks, toBlobLike } from "./audio-processor"
 import { parseMetadataMessage } from "./metadata-processor"

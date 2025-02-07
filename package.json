@@ -2,7 +2,9 @@
   "name": "@echristian/edge-tts",
   "version": "0.0.11",
   "description": "Use Microsoft Edge's online text-to-speech service from JS code directly!",
-  "keywords": ["tts"],
+  "keywords": [
+    "tts"
+  ],
   "homepage": "https://github.com/ericc-ch/pkg-placeholder",
   "bugs": "https://github.com/ericc-ch/pkg-placeholder/issues",
   "author": "Erick Christian <erickchristian48@gmail.com>",
@@ -44,8 +46,6 @@
     "tsup": "^8.3.6",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
-    "unbuild": "^3.3.1",
-    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.5"
   },
   "packageManager": "pnpm@10.2.1",
@@ -54,5 +54,8 @@
       "esbuild",
       "simple-git-hooks"
     ]
+  },
+  "dependencies": {
+    "citty": "^0.1.6"
   }
 }
