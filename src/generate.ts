@@ -1,4 +1,4 @@
-import { DEFAULT_OPTIONS } from "./lib/config"
+import { DEFAULT_OPTIONS } from "./lib/constants"
 import { createSSMLString } from "./lib/ssml"
 import { createSocket } from "./lib/tts-connection"
 import { handleTTSConnection } from "./lib/tts-processor"
