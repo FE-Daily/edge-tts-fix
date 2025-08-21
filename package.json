@@ -1,6 +1,6 @@
 {
   "name": "@fe-daily/edge-tts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Use Microsoft Edge's online text-to-speech service from JS code directly!",
   "keywords": [
     "tts"
