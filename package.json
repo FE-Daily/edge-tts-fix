@@ -1,34 +1,65 @@
 {
   "name": "@echristian/edge-tts",
-  "version": "0.0.8",
+  "version": "0.0.14",
   "description": "Use Microsoft Edge's online text-to-speech service from JS code directly!",
-  "keywords": [],
-  "license": "MIT",
-  "author": "Erick Christian <erickchristian48@gmail.com> (https://github.com/ericc-ch)",
+  "keywords": [
+    "tts"
+  ],
+  "homepage": "https://github.com/ericc-ch/pkg-placeholder",
+  "bugs": "https://github.com/ericc-ch/pkg-placeholder/issues",
+  "author": "Erick Christian <erickchristian48@gmail.com>",
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/main.mjs",
-      "require": "./dist/main.cjs"
+      "types": "./dist/main.d.ts",
+      "default": "./dist/main.js"
     }
   },
-  "main": "./dist/main.mjs",
-  "types": "./dist/main.d.ts",
+  "bin": {
+    "@echristian/edge-tts": "./dist/cli.js"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "unbuild",
+    "build": "tsx ./scripts/build.ts",
     "lint": "eslint .",
-    "prepack": "unbuild"
+    "prepack": "pnpm run build",
+    "prepare": "simple-git-hooks",
+    "release": "bumpp && pnpm publish --access public",
+    "start": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   },
   "dependencies": {
     "defu": "^6.1.4"
   },
   "devDependencies": {
-    "@echristian/eslint-config": "^0.0.8",
-    "eslint": "^9.17.0",
-    "unbuild": "^3.0.1"
+    "@echristian/eslint-config": "^0.0.18",
+    "@types/node": "^22.13.1",
+    "bumpp": "^10.0.2",
+    "eslint": "^9.19.0",
+    "knip": "^5.43.6",
+    "lint-staged": "^15.4.3",
+    "simple-git-hooks": "^2.11.1",
+    "tsup": "^8.3.6",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@10.2.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "simple-git-hooks"
+    ]
+  },
+  "dependencies": {
+    "citty": "^0.1.6"
+  }
 }

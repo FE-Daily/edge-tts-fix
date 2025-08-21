@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "baseUrl": ".",
+    "lib": ["ESNext", "DOM"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
     "strict": true,
+    "strictNullChecks": true,
+    "noEmit": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "isolatedDeclarations": true,
-    "declaration": true
-  },
-  "include": ["src"]
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
+  }
 }
